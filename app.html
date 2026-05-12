@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SceneVault - Uploader</title>
+    <style>
+        /* Menggunakan tema gelap yang selaras dengan beranda */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 40px 20px; 
+            background-color: #121212; 
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Desain Card bergaya Glassmorphism / Modern Dark */
+        .card { 
+            background: #1e1e1e; 
+            padding: 35px; 
+            border-radius: 12px; 
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5); 
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #333;
+        }
+
+        h2 { margin-top: 0; color: #ffffff; letter-spacing: 1px; }
+        p { color: #aaaaaa; font-size: 0.95rem; margin-bottom: 25px; }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: 600;
+            color: #cccccc;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        /* Input Fields */
+        input[type="text"], textarea, input[type="file"] { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #2a2a2a;
+            color: #ffffff;
+            border: 1px solid #444; 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #0288d1;
+        }
+
+        /* Tombol Utama (Simpan) */
+        button { 
+            width: 100%; 
+            margin-top: 25px; 
+            padding: 14px; 
+            background-color: #0288d1; 
+            color: white; 
+            border: none; 
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: background-color 0.3s;
+        }
+        button:hover { background-color: #026aa7; }
+
+        /* Tombol Sekunder (Lihat Arsip) */
+        .btn-arsip {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 14px;
+            background-color: transparent;
+            color: #0288d1;
+            border: 2px solid #0288d1;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            box-sizing: border-box;
+            transition: all 0.3s;
+        }
+        .btn-arsip:hover {
+            background-color: rgba(2, 136, 209, 0.1);
+            color: #4eb5f1;
+            border-color: #4eb5f1;
+        }
+
+        /* Pesan Status */
+        #statusMsg {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>SceneVault Uploader</h2>
+        <p>Simpan referensi visual dan parameter prompt AI ke Cloud.</p>
+        
+        <input type="text" id="sceneTitle" placeholder="Judul Scene (Contoh: Scene 1 - Siang Hari)">
+        <textarea id="promptText" rows="4" placeholder="Ketik narrative outline atau prompt spesifik di sini..." style="margin-top: 15px;"></textarea>
+        
+        <label>Gambar Referensi / Storyboard:</label>
+        <input type="file" id="imageFile" accept="image/*">
+        
+        <button id="uploadBtn">Simpan Arsip</button>
+        
+        <a href="arsip.html" class="btn-arsip">Lihat Arsip Tersimpan &rarr;</a>
+        
+        <p id="statusMsg"></p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getFirestore, connectFirestoreEmulator, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getStorage, connectStorageEmulator, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+
+        // Konfigurasi emulator lokal (dengan tambahan storageBucket agar tidak error)
+        const firebaseConfig = { 
+            projectId: "demo-no-project",
+            storageBucket: "demo-no-project.appspot.com" 
+        };
+        const app = initializeApp(firebaseConfig);
+
+        // Koneksi ke Layanan Emulator (Menggunakan localhost)
+        const db = getFirestore(app);
+        connectFirestoreEmulator(db, 'localhost', 8080);
+        
+        const storage = getStorage(app);
+        connectStorageEmulator(storage, 'localhost', 9199);
+
+        // Logika saat tombol ditekan
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const title = document.getElementById('sceneTitle').value;
+            const prompt = document.getElementById('promptText').value;
+            const fileInput = document.getElementById('imageFile').files[0];
+            const statusMsg = document.getElementById('statusMsg');
+
+            if (!title || !prompt || !fileInput) {
+                alert("Harap isi semua kolom dan pilih gambar!");
+                return;
+            }
+
+            statusMsg.style.color = "#4caf50"; // Warna hijau terang untuk dark mode
+            statusMsg.innerText = "Mengunggah gambar ke Storage...";
+            
+            try {
+                // Upload ke Cloud Storage 
+                const storageRef = ref(storage, 'referensi_visual/' + fileInput.name);
+                await uploadBytes(storageRef, fileInput);
+                const imageUrl = await getDownloadURL(storageRef);
+
+                statusMsg.innerText = "Gambar berhasil! Menyimpan teks ke Database...";
+
+                // Simpan URL dan Teks ke NoSQL Database
+                await addDoc(collection(db, "arsip_scene"), {
+                    judul: title,
+                    narrative_prompt: prompt,
+                    url_gambar: imageUrl,
+                    waktu_simpan: new Date().toISOString()
+                });
+
+                statusMsg.innerText = "Selesai! Data berhasil diamankan.";
+                
+                // Bersihkan form
+                document.getElementById('sceneTitle').value = '';
+                document.getElementById('promptText').value = '';
+                document.getElementById('imageFile').value = '';
+
+            } catch (error) {
+                console.error(error);
+                statusMsg.style.color = "#ff5252"; // Warna merah terang
+                statusMsg.innerText = "Terjadi kesalahan. Cek console browser.";
+            }
+        });
+    </script>
+</body>
+</html>

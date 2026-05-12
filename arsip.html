@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SceneVault - Galeri Arsip</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 40px 20px;
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+      .header h1 {
+        color: #ffffff;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+      .header p {
+        color: #aaa;
+      }
+      .btn-kembali {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #1e1e1e;
+        color: #0288d1;
+        text-decoration: none;
+        border: 1px solid #333;
+        border-radius: 6px;
+        transition: all 0.3s;
+        margin-bottom: 20px;
+        font-weight: bold;
+      }
+      .btn-kembali:hover {
+        background-color: #2a2a2a;
+        border-color: #0288d1;
+      }
+
+      /* Grid Layout untuk Kartu Galeri */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      /* Desain Kartu Item */
+      .card {
+        background: #1e1e1e;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #333;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        border-color: #555;
+      }
+      .card img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-bottom: 1px solid #333;
+      }
+      .card-content {
+        padding: 20px;
+      }
+      .card h3 {
+        margin: 0 0 10px 0;
+        color: #0288d1;
+        font-size: 1.2rem;
+      }
+      .card p {
+        font-size: 0.9rem;
+        color: #ccc;
+        margin: 0;
+        line-height: 1.6;
+        white-space: pre-wrap; /* Mempertahankan format baris baru dari text area */
+      }
+      .loading {
+        text-align: center;
+        font-size: 1.1rem;
+        color: #888;
+        margin-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <a href="app.html" class="btn-kembali">&larr; Kembali ke Uploader</a>
+      <h1>Galeri Arsip SceneVault</h1>
+      <p>
+        Koleksi referensi visual dan parameter prompt dari Cloud Firestore &
+        Storage.
+      </p>
+    </div>
+
+    <div id="loading" class="loading">
+      Mengambil data dari Cloud Emulator...
+    </div>
+
+    <div id="gallery" class="gallery-grid"></div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getFirestore,
+        connectFirestoreEmulator,
+        collection,
+        getDocs,
+        orderBy,
+        query,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      // Konfigurasi emulator lokal
+      const firebaseConfig = {
+        projectId: "demo-no-project",
+        storageBucket: "demo-no-project.appspot.com",
+      };
+      const app = initializeApp(firebaseConfig);
+
+      // Koneksi ke Firestore
+      const db = getFirestore(app);
+      connectFirestoreEmulator(db, "localhost", 8080);
+
+      // Fungsi untuk mengambil dan menampilkan data
+      async function muatArsip() {
+        const gallery = document.getElementById("gallery");
+        const loading = document.getElementById("loading");
+
+        try {
+          // Ambil data dari koleksi "arsip_scene"
+          const querySnapshot = await getDocs(collection(db, "arsip_scene"));
+
+          loading.style.display = "none"; // Sembunyikan teks loading
+
+          // Jika database kosong
+          if (querySnapshot.empty) {
+            gallery.innerHTML =
+              '<p style="text-align:center; grid-column: 1 / -1; color: #888;">Belum ada arsip yang tersimpan.</p>';
+            return;
+          }
+
+          // Looping data dan buat HTML untuk setiap kartu
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                        <img src="${data.url_gambar}" alt="${data.judul}">
+                        <div class="card-content">
+                            <h3>${data.judul}</h3>
+                            <p><strong>Outline/Prompt:</strong><br>${data.narrative_prompt}</p>
+                        </div>
+                    `;
+            gallery.appendChild(card);
+          });
+        } catch (error) {
+          console.error("Error mengambil data: ", error);
+          loading.innerText = "Gagal memuat data. Pastikan emulator berjalan.";
+          loading.style.color = "#ff5252";
+        }
+      }
+
+      // Jalankan fungsi saat halaman dimuat
+      muatArsip();
+    </script>
+  </body>
+</html>

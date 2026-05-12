@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SceneVault - Beranda</title>
+    <style>
+      /* Gaya dasar untuk estetika modern dan bersih */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #121212; /* Tema gelap untuk nuansa sinematik */
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+      }
+
+      .container {
+        max-width: 650px;
+        padding: 30px;
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      h1 {
+        font-size: 4rem;
+        margin-bottom: 10px;
+        letter-spacing: 3px;
+        font-weight: 800;
+      }
+
+      p {
+        font-size: 1.2rem;
+        color: #b3b3b3;
+        margin-bottom: 50px;
+        line-height: 1.6;
+      }
+
+      /* Tombol Masuk yang Elegan */
+      .btn-masuk {
+        display: inline-block;
+        padding: 16px 45px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #121212;
+        background-color: #ffffff;
+        text-decoration: none;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .btn-masuk:hover {
+        background-color: #e0e0e0;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Efek muncul perlahan */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>SceneVault</h1>
+      <p>
+        Pusat Arsip Digital Terpadu untuk Referensi Visual, Storyboard, dan
+        Parameter Prompt AI. Amankan aset kreatifmu di Cloud Emulator.
+      </p>
+
+      <!-- Tombol ini langsung mengarah ke halaman app.html tanpa login -->
+      <a href="app.html" class="btn-masuk">Masuk ke Ruang Arsip &rarr;</a>
+    </div>
+  </body>
+</html>
