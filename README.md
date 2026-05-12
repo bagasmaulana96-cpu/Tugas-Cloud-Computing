@@ -1,30 +1,5 @@
 # Tugas-Cloud-Computing
 
-# LAPORAN PROYEK CLOUD COMPUTING: Implementasi Cloud Emulator pada Aplikasi Scene Vault
-
-## Pendahuluan
-Scene Vault merupakan platform manajemen aset visual yang dirancang untuk mendukung alur kerja kreatif seperti AI Prompt Engineering dan animasi 3D. Aplikasi ini berfungsi sebagai wadah sentral untuk menyimpan referensi gambar (storyboard) dan parameter teknis teks dalam satu ekosistem digital. Proyek ini mengedepankan efisiensi pengembangan menggunakan infrastruktur cloud yang dijalankan pada lingkungan emulator lokal.
-
-**Tautan Repositori GitHub:** [MASUKKAN LINK GITHUB KAMU DI SINI]
-
----
-
-## Arsitektur Cloud (Layanan yang Digunakan)
-Aplikasi ini memanfaatkan dua layanan utama dari ekosistem cloud yang diemulasikan secara lokal melalui Firebase Local Emulator Suite:
-
-* **Service 1: Cloud Storage Emulator (Object Storage):** Mengelola penyimpanan file gambar statis. Layanan ini menerima unggahan file, menyimpannya di bucket lokal, dan menyediakan URL akses untuk ditampilkan kembali di aplikasi.
-* **Service 2: Cloud Firestore Emulator (NoSQL Database):** Berfungsi sebagai penyimpanan data dokumen teks. Layanan ini menyimpan judul, teks narasi, dan referensi URL dari Cloud Storage secara terstruktur.
-
-### Catatan Sifat Penyimpanan (Default) & Opsi Permanen
-Secara bawaan (default), layanan emulator ini bekerja pada memori sementara (In-Memory). Artinya, semua data yang diunggah akan terhapus secara otomatis setiap kali mesin emulator dimatikan. Namun, jika penguji menginginkan webapp tetap menyimpan data agar tidak hilang, fitur ekspor-impor dapat diaktifkan.
-
-Saat menjalankan emulator di terminal, gunakan perintah khusus berikut:
-`npx firebase emulators:start --import=./data_database --export-on-exit=./data_database`
-
-Perintah ini akan membuat folder lokal yang mengunci data aplikasi. Pastikan untuk selalu mematikan emulator dengan menekan tombol `Ctrl + C` di terminal agar data sempat tersimpan sebelum program tertutup.
-
----
-
 ## Panduan Setup & Instalasi
 Agar aplikasi dapat berjalan, PC/Laptop penguji wajib telah terinstal Node.js dan Java (JDK) Versi 21 atau lebih tinggi.
 
